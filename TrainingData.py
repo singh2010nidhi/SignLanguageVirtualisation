@@ -40,7 +40,7 @@ def main():
     countLabel = 0
 
     p = dict()
-    targetLabel = "victory"
+    targetLabel = "yes"
     sampleSize = 50
     p['index']=[targetLabel+"_" + str(i) for i in range (sampleSize)]
 
@@ -76,7 +76,7 @@ def main():
     df = pd.DataFrame(p)
     df.insert(22,"Label", [targetLabel for i in range(sampleSize)])
     print(df)
-    df.to_csv(targetLabel+'_trainingdata.csv')
+    df.to_csv('trainingData\\'+targetLabel+'_trainingdata.csv')
 
 if __name__=="__main__":
     main()

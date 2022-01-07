@@ -1,7 +1,7 @@
 import pandas as pd
 import glob
 
-path = r'E:\Auddy Desktop\SignLanguageVirtualisation\trainingData' # use your path
+path = r'trainingData' # use your path
 all_files = glob.glob(path + "/*.csv")
 
 li = []
