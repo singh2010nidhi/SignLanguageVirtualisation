@@ -40,7 +40,7 @@ def main():
     countLabel = 0
 
     p = dict()
-    targetLabel = "no"
+    targetLabel = "victory"
     sampleSize = 50
     p['index']=[targetLabel+"_" + str(i) for i in range (sampleSize)]
 
