@@ -1,73 +1,82 @@
 import cv2
 import time
 import mediapipe as mp
-# import matplotlib.pyplot as plt
-class handDetector():
-    def __init__(self,mode=False,maxhands=2,detectionCon=0.5,trackCon=0.5):
-        self.mode=mode
-        self.maxhands=maxhands
-        self.detectionCon=detectionCon
-        self.trackCon=trackCon
-        self.mpHands=mp.solutions.hands
-        self.hands=self.mpHands.Hands(self.mode,self.maxhands,1,self.detectionCon,self.trackCon)
-        self.mpDraw=mp.solutions.drawing_utils
-    def findhands(self,img,draw=True):
-        imgRGB=cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
-        self.results = self.hands.process(imgRGB)
-        # print(results)
-        if self.results.multi_hand_landmarks:
-            for handlms in self.results.multi_hand_landmarks:
-                if draw:
-                    self.mpDraw.draw_landmarks(img,handlms,self.mpHands.HAND_CONNECTIONS)
+import HandTrackingModule1 as htm
+import numpy as np
+import csv
+import pandas as pd
 
-                # for id,ln in enumerate(handlms.landmark):
-                    # print(id,ln)
-                    # h,w,c = img.shape
-                    # cx,cy=int(ln.x*w),int(ln.y*h)
-                    # print(id,cx,cy)
-                    # if id==15:
-                    # cv2.circle(img,(cx,cy),15,(255,0,255),cv2.FILLED)
-        return img
-    def findPosition(self,img,handNo=0,draw=True):
-        lmList = []
-        if self.results.multi_hand_landmarks:
-            myHand = self.results.multi_hand_landmarks[handNo]
-            for id, lm in enumerate(myHand.landmark):
-                h,w,c = img.shape
-                cx, cy = int(lm.x * w), int(lm.y * h)
-                lmList.append([id, cx, cy])
-                if draw:
-                    cv2.circle(img, (cx, cy), 7, (255,0,255), cv2.FILLED)
-                # if id in [1,2,3,4]:
-                #     cv2.circle(img, (cx, cy), 15, (255,0,255), cv2.FILLED)
-                # if id in [5,6,7,8]:
-                #     cv2.circle(img, (cx, cy), 15, (0,255,255), cv2.FILLED)
+from math import dist, sqrt
+import json 
+import random
 
-                # cv2.putText(img,"hello",(30,100),cv2.FONT_HERSHEY_PLAIN,3,(255,0,255),3)
+def getCenterOfMass(lmList):
+    sumX = 0
+    for i in range(21):
+        sumX = sumX + lmList[i][1]
+    sumY = 0
+    for i in range(21):
+        sumY = sumY + lmList[i][2]
 
-        return lmList
+    return sumX/21, sumY/21
 
+def findDistance(x1,y1,x2,y2):
+    return sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2))
 
-# def main():
-#     pTime=0
-#     cTime=0
-#     cap=cv2.VideoCapture(0)
-#     detector=handDetector()
-#     while True:
-#         success,img=cap.read()
-#         img=detector.findhands(img)
-#         lmlist = detector.findPosition(img)
-#         if len(lmlist) != 0:
-#             print(lmlist[4])
+def getDistanceFromCenter(lmList):
+    comX, comY = getCenterOfMass(lmList)
+    distFromCOM = [0 for i in range(21)]
 
-#         cTime=time.time()
-#         fps=1/(cTime-pTime)
-#         pTime=cTime
+    for i in range(21):
+        distFromCOM[i] = findDistance(comX, comY, lmList[i][1], lmList[i][2])
 
-#         cv2.putText(img,str(int(fps)),(10,70),cv2.FONT_HERSHEY_PLAIN,3,(255,0,255),3)
-#         cv2.imshow('image1',img)
-#         keyPressed = cv2.waitKey(5)
-#         # if keyPressed == ord('q'):
-#         #     break;
-# if __name__=="__main__":
-#     main()
+    return distFromCOM
+
+def main():
+    pTime=0
+    cTime=0
+    cap=cv2.VideoCapture(0)
+    detector=htm.handDetector()
+    countLabel = 0
+
+    p = dict()
+    targetLabel = "no"
+    sampleSize = 50
+    p['index']=[targetLabel+"_" + str(i) for i in range (sampleSize)]
+
+    while countLabel<sampleSize:
+        success,img=cap.read()
+        img=detector.findhands(img)
+        lmlist = detector.findPosition(img)
+        
+        if len(lmlist) != 0:
+            distfromCOM = getDistanceFromCenter(lmlist)
+
+            for i in range(0,21):
+                if i in p:
+                    p[i].append(distfromCOM[i])
+                else:
+                    p[i]=[distfromCOM[i]]
+    
+            #print(lmlist)
+            #print(distfromCOM)
+            countLabel=countLabel+1
+
+        cTime=time.time()
+        fps=1/(cTime-pTime)
+        pTime=cTime
+
+        cv2.putText(img,str(int(fps)),(10,70),cv2.FONT_HERSHEY_PLAIN,3,(255,0,255),3)
+        cv2.imshow('image1',img)
+        keyPressed = cv2.waitKey(5)
+        # if keyPressed == ord('q'):
+        #     break;
+    print(p)
+    print("\n")
+    df = pd.DataFrame(p)
+    df.insert(22,"Label", [targetLabel for i in range(sampleSize)])
+    print(df)
+    df.to_csv(targetLabel+'_trainingdata.csv')
+
+if __name__=="__main__":
+    main()
