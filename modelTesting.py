@@ -7,7 +7,7 @@ import csv
 import pandas as pd
 import pickle
 
-from math import dist, sqrt
+from math import *
 import json 
 import random
 
@@ -31,17 +31,23 @@ def getCenterOfMass(lmList):
 
     return sumX/21, sumY/21
 
+def getAngle(comX, comY, x, y):
+    angle = atan((y-comY)/(x-comX))
+    return angle
+
 def findDistance(x1,y1,x2,y2):
     return sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2))
 
-def getDistanceFromCenter(lmList):
+def getVectorFromCenter(lmList):
     comX, comY = getCenterOfMass(lmList)
     distFromCOM = [0 for i in range(21)]
+    angleFromCOM = [0 for i in range(21)]
 
     for i in range(21):
         distFromCOM[i] = findDistance(comX, comY, lmList[i][1], lmList[i][2])
+        angleFromCOM[i] = getAngle(comX, comY, lmList[i][1], lmList[i][2])
 
-    return distFromCOM
+    return distFromCOM, angleFromCOM
 
 def main():
     pTime=0
@@ -50,10 +56,11 @@ def main():
     detector=htm.handDetector()
 
     result = dict()
-    result[1]='Stop'
-    result[2]='Up'
-    result[3]='Victory'
-    result[4]='Yes'
+    result[1]='Victory Up'
+    result[2]='Victory Down'
+    result[3]='Thumb Up'
+    result[4]='Palm'
+    result[5]='Thumbs Down'
     
     loadedModel = pickle.load(open('firstModel.sav','rb'))
     while True:
@@ -66,21 +73,20 @@ def main():
         cv2.putText(img, "Result:", (140,30), cv2.FONT_HERSHEY_PLAIN, 2, (0,0,0), 1)
 
         if len(lmlist) != 0:
-            distfromCOM = getDistanceFromCenter(lmlist)
-            distList = [distfromCOM]
-            answer = loadedModel.predict(distList)
+            try:
+                distFromCOM, angleFromCOM = getVectorFromCenter(lmlist)
+            except:
+                continue
+            testList = []
+            for i in range(21):
+                testList.append(distFromCOM[i])
+                testList.append(angleFromCOM[i])
+            
+            answer = loadedModel.predict([testList])
             # print(result[int(answer)])
 
             cv2.putText(img, result[int(answer)], (260,30), cv2.FONT_HERSHEY_PLAIN, 2, (0,0,0), 2)
-# =======
-            cv2.putText(img,result[int(answer)],(30,100),cv2.FONT_HERSHEY_PLAIN,3,(0,0,255),3)
-#             # for i in range(0,21):
-#             #     if i in p:
-#             #         p[i].append(distfromCOM[i])
-#             #     else:
-#             #         p[i]=[distfromCOM[i]]
 
-    
             #print(lmlist)
             #print(distfromCOM)
         else:

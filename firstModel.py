@@ -6,17 +6,21 @@ from sklearn.metrics import classification_report, confusion_matrix
 from sklearn.ensemble import RandomForestClassifier
 import pickle
 
-df = pd.read_csv('trainingData.csv',usecols=[str(i) for i in range(21)]+['Label'])
+df = pd.read_csv('trainingData.csv')
+df = df.iloc[: , 3:]
 
-for i in range(2000):
-    if df['Label'][i]=='stop':
-        df['Label'][i]=1
-    elif df['Label'][i]=='up':
-        df['Label'][i]=2
-    elif df['Label'][i]=='victory':
-        df['Label'][i]=3
-    elif df['Label'][i]=='yes':
-        df['Label'][i]=4
+for i in range(2500):
+    if df['Label'][i]=='victory_up':
+        df['Label'][i] = 1
+    elif df['Label'][i]=='victory_down':
+        df['Label'][i] = 2
+    elif df['Label'][i]=='thumbs_up':
+        df['Label'][i] = 3
+    elif df['Label'][i]=='palm_up':
+        df['Label'][i] = 4
+    elif df['Label'][i]=='thumbs_down':
+        df['Label'][i] = 5
+    
 
 y = df['Label']
 y = y.astype('int')
