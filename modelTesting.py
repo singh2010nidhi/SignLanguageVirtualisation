@@ -70,7 +70,16 @@ def main():
             distList = [distfromCOM]
             answer = loadedModel.predict(distList)
             # print(result[int(answer)])
+# <<<<<<< Updated upstream
             cv2.putText(img, result[int(answer)], (260,30), cv2.FONT_HERSHEY_PLAIN, 2, (0,0,0), 2)
+# =======
+            cv2.putText(img,result[int(answer)],(30,100),cv2.FONT_HERSHEY_PLAIN,3,(0,0,255),3)
+#             # for i in range(0,21):
+#             #     if i in p:
+#             #         p[i].append(distfromCOM[i])
+#             #     else:
+#             #         p[i]=[distfromCOM[i]]
+# >>>>>>> Stashed changes
     
             #print(lmlist)
             #print(distfromCOM)
