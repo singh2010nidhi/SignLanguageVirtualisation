@@ -10,6 +10,16 @@ from math import dist, sqrt
 import json 
 import random
 
+def getFpsColor(fps):
+    if fps<=10:
+        return (0,0,150)
+    if fps>=30:
+        return (0,150,0)
+    g = min(150,(fps-10)*15)
+    r = min(150,150-((fps-20)*15))
+    return (0,g,r)
+    
+
 def getCenterOfMass(lmList):
     sumX = 0
     for i in range(21):
@@ -40,8 +50,8 @@ def main():
     countLabel = 0
 
     p = dict()
-    targetLabel = "yes"
-    sampleSize = 50
+    targetLabel = "up"
+    sampleSize = 500
     p['index']=[targetLabel+"_" + str(i) for i in range (sampleSize)]
 
     while countLabel<sampleSize:
@@ -57,22 +67,25 @@ def main():
                     p[i].append(distfromCOM[i])
                 else:
                     p[i]=[distfromCOM[i]]
-    
+
+            countLabel=countLabel+1
+            
             #print(lmlist)
             #print(distfromCOM)
-            countLabel=countLabel+1
 
         cTime=time.time()
         fps=1/(cTime-pTime)
         pTime=cTime
 
-        cv2.putText(img,str(int(fps)),(10,70),cv2.FONT_HERSHEY_PLAIN,3,(255,0,255),3)
+        cv2.putText(img, "FPS:"+str(int(fps)), (10,30), cv2.FONT_HERSHEY_PLAIN, 2, getFpsColor(fps), 2)
+        cv2.putText(img, "Frames taken: "+str(countLabel), (310,30), cv2.FONT_HERSHEY_PLAIN, 2, (150,0,0), 2)
         cv2.imshow('image1',img)
         keyPressed = cv2.waitKey(5)
         # if keyPressed == ord('q'):
         #     break;
-    print(p)
-    print("\n")
+
+    # print(p)
+    # print("\n")
     df = pd.DataFrame(p)
     df.insert(22,"Label", [targetLabel for i in range(sampleSize)])
     print(df)
