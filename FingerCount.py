@@ -29,7 +29,7 @@ def main():
         cv2.putText(img,str(int(fps)),(10,70),cv2.FONT_HERSHEY_PLAIN,3,(255,0,255),3)
         cv2.imshow('image1',img)
         keyPressed = cv2.waitKey(5)
-        # if keyPressed == ord('q'):
-        #     break;
+        if keyPressed == ord(chr(27)):
+            break
 if __name__=="__main__":
     main()
