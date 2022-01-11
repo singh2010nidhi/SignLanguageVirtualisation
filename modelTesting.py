@@ -56,11 +56,11 @@ def main():
     detector=htm.handDetector()
 
     result = dict()
-    result[1]='Victory Up'
-    result[2]='Victory Down'
-    result[3]='Thumb Up'
-    result[4]='Palm'
-    result[5]='Thumbs Down'
+    result[1]='Victory'
+    result[2]='Victory'
+    result[3]='Good luck'
+    result[4]='Stop'
+    result[5]='You Lose'
     
     loadedModel = pickle.load(open('firstModel.sav','rb'))
     while True:

@@ -3,7 +3,7 @@ import time
 import mediapipe as mp
 # import matplotlib.pyplot as plt
 class handDetector():
-    def __init__(self,mode=False,maxhands=2,detectionCon=0.5,trackCon=0.5):
+    def __init__(self,mode=False, maxhands=1, detectionCon=0.5,trackCon=0.5):
         self.mode=mode
         self.maxhands=maxhands
         self.detectionCon=detectionCon
@@ -11,6 +11,7 @@ class handDetector():
         self.mpHands=mp.solutions.hands
         self.hands=self.mpHands.Hands(self.mode,self.maxhands,1,self.detectionCon,self.trackCon)
         self.mpDraw=mp.solutions.drawing_utils
+
     def findhands(self,img,draw=True):
         imgRGB=cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
         self.results = self.hands.process(imgRGB)
@@ -28,6 +29,7 @@ class handDetector():
                     # if id==15:
                     # cv2.circle(img,(cx,cy),15,(255,0,255),cv2.FILLED)
         return img
+        
     def findPosition(self,img,handNo=0,draw=True):
         lmList = []
         if self.results.multi_hand_landmarks:
@@ -36,8 +38,8 @@ class handDetector():
                 h,w,c = img.shape
                 cx, cy = int(lm.x * w), int(lm.y * h)
                 lmList.append([id, cx, cy])
-                if draw:
-                    cv2.circle(img, (cx, cy), 7, (255,0,255), cv2.FILLED)
+                # if draw:
+                #     cv2.circle(img, (cx, cy), 7, (255,0,255), cv2.FILLED)
                 # if id in [1,2,3,4]:
                 #     cv2.circle(img, (cx, cy), 15, (255,0,255), cv2.FILLED)
                 # if id in [5,6,7,8]:
